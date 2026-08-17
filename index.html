@@ -1,1 +1,29 @@
-<!DOCTYPE html> <html> <head> <title>Draft 9 Proxy</title> <script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.js"></script> </head> <body> <script> ScramjetController.init({ prefix: '/scramjet/scramjet/', files: { wasm: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.wasm.js', worker: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.worker.js', client: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.client.js', shared: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.shared.js', sync: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.sync.js', } }); </script> </body> </html> 
+<!DOCTYPE html>
+<html>
+<head>
+<title>Draft 9 Proxy</title>
+</head>
+<body>
+<script type="module">
+import { ScramjetController } from 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.controller.js';
+
+window.__scramjetController = new ScramjetController({
+  prefix: '/scramjet/scramjet/',
+  files: {
+    wasm:   'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.wasm.js',
+    worker: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.worker.js',
+    client: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.client.js',
+    shared: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.shared.js',
+    sync:   'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.sync.js',
+  },
+  codec: {
+    encode: (url) => btoa(url),
+    decode: (url) => atob(url),
+  }
+});
+
+await window.__scramjetController.init();
+console.log('Scramjet proxy ready at /scramjet/scramjet/');
+</script>
+</body>
+</html>
