@@ -4,26 +4,40 @@
 <title>Draft 9 Proxy</title>
 </head>
 <body>
-<script type="module">
-import { ScramjetController } from 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.controller.js';
+<script src="./scramjet.bundle.js"></script>
+<script>
+const { ScramjetController } = $scramjetLoadController();
 
-window.__scramjetController = new ScramjetController({
-  prefix: '/scramjet/scramjet/',
-  files: {
-    wasm:   'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.wasm.js',
-    worker: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.worker.js',
-    client: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.client.js',
-    shared: 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.shared.js',
-    sync:   'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet@2.0.67-alpha.1/dist/scramjet.sync.js',
-  },
+const scramjet = new ScramjetController({
+  prefix: "/scramjet/",
   codec: {
-    encode: (url) => btoa(url),
-    decode: (url) => atob(url),
+    encode: (url) => encodeURIComponent(url),
+    decode: (url) => decodeURIComponent(url)
+  },
+  files: {
+    wasm: "./scramjet.wasm.wasm",
+    all:  "./scramjet.all.js",
+    sync: "./scramjet.sync.js"
+  },
+  flags: {
+    captureErrors: true,
+    strictRewrites: true,
+    allowInvalidJs: true,
+    allowFailedIntercepts: true
   }
 });
 
-await window.__scramjetController.init();
-console.log('Scramjet proxy ready at /scramjet/scramjet/');
+async function init() {
+  if ("serviceWorker" in navigator) {
+    await navigator.serviceWorker.register("./scramjet.sw.js", { scope: "./" });
+    await navigator.serviceWorker.ready;
+  }
+  await scramjet.init();
+  console.log("✅ Scramjet proxy ready!");
+  window.__scramjet = scramjet;
+}
+
+init().catch(e => console.error("Scramjet init failed:", e));
 </script>
 </body>
 </html>
