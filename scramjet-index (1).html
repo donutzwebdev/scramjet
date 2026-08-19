@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Draft 9 Proxy</title>
+</head>
+<body>
+<script src="./scramjet_bundled.js"></script>
+<script type="module">
+  import { ScramjetController } from 'https://cdn.jsdelivr.net/npm/@mercuryworkshop/scramjet-controller@latest/+esm';
+
+  window.__scramjetController = new ScramjetController({
+    prefix: '/draft9/scramjet/',
+    codec: {
+      encode: (url) => encodeURIComponent(url),
+      decode: (url) => decodeURIComponent(url),
+    },
+    files: {
+      wasm:   '/scramjet/scramjet.wasm',
+      client: '/scramjet/scramjet_bundled.js',
+    }
+  });
+
+  await window.__scramjetController.init('/draft9/scramjet.sw.js');
+  console.log('✅ Scramjet v2 ready!');
+</script>
+</body>
+</html>
