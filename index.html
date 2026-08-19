@@ -2,42 +2,46 @@
 <html>
 <head>
 <title>Draft 9 Proxy</title>
+<script src="./scramjet.bundle.js"></script>
 </head>
 <body>
-<script src="./scramjet.bundle.js"></script>
 <script>
-const { ScramjetController } = $scramjetLoadController();
+window.addEventListener('load', function() {
+  try {
+    const { ScramjetController } = $scramjetLoadController();
 
-const scramjet = new ScramjetController({
-  prefix: "/scramjet/",
-  codec: {
-    encode: (url) => encodeURIComponent(url),
-    decode: (url) => decodeURIComponent(url)
-  },
-  files: {
-    wasm: "./scramjet.wasm.wasm",
-    all:  "./scramjet.all.js",
-    sync: "./scramjet.sync.js"
-  },
-  flags: {
-    captureErrors: true,
-    strictRewrites: true,
-    allowInvalidJs: true,
-    allowFailedIntercepts: true
+    const scramjet = new ScramjetController({
+      prefix: "/scramjet/",
+      codec: {
+        encode: (url) => encodeURIComponent(url),
+        decode: (url) => decodeURIComponent(url)
+      },
+      files: {
+        wasm: "/scramjet/scramjet.wasm.wasm",
+        all:  "/scramjet/scramjet.all.js",
+        sync: "/scramjet/scramjet.sync.js"
+      },
+      flags: {
+        captureErrors: true,
+        strictRewrites: true,
+        allowInvalidJs: true,
+        allowFailedIntercepts: true
+      }
+    });
+
+    navigator.serviceWorker.register("/scramjet/scramjet.sw.js", { scope: "/" })
+      .then(() => navigator.serviceWorker.ready)
+      .then(() => scramjet.init())
+      .then(() => {
+        console.log("✅ Scramjet proxy ready!");
+        window.__scramjet = scramjet;
+      })
+      .catch(e => console.error("Scramjet init failed:", e));
+
+  } catch(e) {
+    console.error("Scramjet load error:", e);
   }
 });
-
-async function init() {
-  if ("serviceWorker" in navigator) {
-    await navigator.serviceWorker.register("./scramjet.sw.js", { scope: "./" });
-    await navigator.serviceWorker.ready;
-  }
-  await scramjet.init();
-  console.log("✅ Scramjet proxy ready!");
-  window.__scramjet = scramjet;
-}
-
-init().catch(e => console.error("Scramjet init failed:", e));
 </script>
 </body>
 </html>
