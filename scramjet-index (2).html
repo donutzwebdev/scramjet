@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Draft 9 Proxy</title>
+</head>
+<body>
+<script src="./scramjet.bundle.js"></script>
+<script src="./bare-mux.worker.js"></script>
+<script>
+window.addEventListener('load', async function() {
+  try {
+    const { ScramjetController } = $scramjetLoadController();
+
+    const scramjet = new ScramjetController({
+      prefix: '/draft9/scramjet/',
+      codec: {
+        encode: (url) => encodeURIComponent(url),
+        decode: (url) => decodeURIComponent(url),
+      },
+      files: {
+        wasm:   'https://donutzwebdev.github.io/scramjet/scramjet.wasm.wasm',
+        all:    'https://donutzwebdev.github.io/scramjet/scramjet.all.js',
+        sync:   'https://donutzwebdev.github.io/scramjet/scramjet.sync.js',
+      }
+    });
+
+    // Set up bare-mux with epoxy transport
+    const conn = new BareMux.BareMuxConnection('/scramjet/bare-mux.worker.js');
+    await conn.setTransport('https://unpkg.com/@mercuryworkshop/epoxy-transport@3/dist/index.mjs', [{ wisp: 'wss://wisp.mercuryworkshop.dev/wisp/' }]);
+
+    await scramjet.init('/draft9/scramjet.sw.js');
+
+    window.__scramjet = scramjet;
+    window.__bareConn = conn;
+    console.log('✅ Scramjet proxy ready!');
+  } catch(e) {
+    console.error('Scramjet init error:', e);
+  }
+});
+</script>
+</body>
+</html>
